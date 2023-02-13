@@ -3,6 +3,7 @@ module github.com/abinashphulkonwar/dist-cache
 go 1.20
 
 require (
+	github.com/buraksezer/consistent v0.10.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/dgraph-io/badger/v3 v3.2103.5 // indirect
