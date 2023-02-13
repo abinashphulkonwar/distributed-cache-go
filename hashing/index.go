@@ -10,6 +10,7 @@ import (
 // In your code, you probably have a custom data type
 // for your cluster members. Just add a String function to implement
 // consistent.Member interface.
+
 type myMember string
 
 func (m myMember) String() string {
@@ -24,6 +25,7 @@ type hasher struct {
 
 func (h hasher) Sum64(data []byte) uint64 {
 	// you should use a proper hash function for uniformity.
+
 	return xxhash.Sum64(data)
 }
 
