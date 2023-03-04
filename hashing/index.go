@@ -44,9 +44,11 @@ func (c *hasher) AddNode(name string) {
 
 }
 
-func (c *hasher) GetNode(key string) {
+func (c *hasher) GetNode(key string) string {
 
 	keyByts := []byte(key)
 	owner := c.c.LocateKey(keyByts)
+
 	fmt.Println(owner.String(), key)
+	return owner.String()
 }
