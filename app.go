@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/abinashphulkonwar/dist-cache/api"
 	"github.com/abinashphulkonwar/dist-cache/storage"
 	"github.com/dgraph-io/badger/v3"
 )
@@ -15,5 +16,7 @@ func main() {
 	defer connection.Close()
 
 	db := storage.NewBadgerStorage(connection)
-	db.Add("key", "value")
+
+	api.ApiServer(db)
+
 }
