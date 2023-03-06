@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/abinashphulkonwar/dist-cache/api"
 	"github.com/abinashphulkonwar/dist-cache/storage"
+	"github.com/abinashphulkonwar/dist-cache/tcp"
 	"github.com/dgraph-io/badger/v3"
 )
 
@@ -19,4 +20,9 @@ func main() {
 
 	api.ApiServer(db)
 
+	err = tcp.ApiServer(db)
+
+	if err != nil {
+		panic(err)
+	}
 }

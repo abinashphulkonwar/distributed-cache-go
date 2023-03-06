@@ -47,7 +47,8 @@ func App(db *storage.BadgerStorage) *fiber.App {
 		},
 	})
 
-	routes.WriteRoute(app, db)
+	go routes.WriteRoute(app, db)
+	go routes.QueryRoute(app, db)
 
 	return app
 }
