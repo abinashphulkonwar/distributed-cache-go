@@ -1,11 +1,10 @@
 package tcp
 
-import "net"
+import (
+	"net"
 
-type Body struct {
-	Key  string `json:"Key"`
-	Data string `json:"Data"`
-}
+	"github.com/abinashphulkonwar/dist-cache/storage"
+)
 
 type Response struct {
 	Message string `json:"message"`
@@ -14,8 +13,9 @@ type Response struct {
 }
 
 type Client struct {
-	conn net.Conn
-	id   string
+	Conn net.Conn
+	ID   string
+	DB   *storage.BadgerStorage
 }
 
 type ErrorRes struct {

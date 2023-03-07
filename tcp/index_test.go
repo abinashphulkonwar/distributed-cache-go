@@ -1,74 +1,61 @@
 package tcp_test
 
 import (
-	"bytes"
-	"encoding/json"
-	"io"
-	"net/http/httptest"
+	"net"
+	"os"
 	"testing"
 
-	"github.com/abinashphulkonwar/dist-cache/api"
-	"github.com/abinashphulkonwar/dist-cache/api/handlers"
 	"github.com/abinashphulkonwar/dist-cache/storage"
+	"github.com/abinashphulkonwar/dist-cache/tcp"
 	"github.com/dgraph-io/badger/v3"
-	"github.com/gofiber/fiber/v2"
 )
 
-func Init() *fiber.App {
+func Init() {
 	connection, err := badger.Open(badger.DefaultOptions("").WithInMemory(true).WithLogger(nil))
 
 	if err != nil {
 		panic(err)
 	}
 	db := storage.NewBadgerStorage(connection)
-	app := api.App(db)
-	return app
+
+	app := tcp.App(db)
+	if app != nil {
+		panic("Error")
+	}
+}
+
+func Client() *net.TCPConn {
+	tcpAddr, err := net.ResolveTCPAddr("tcp", "localhost:3001")
+	if err != nil {
+		println("ResolveTCPAddr failed:", err.Error())
+		os.Exit(1)
+	}
+
+	conn, err := net.DialTCP("tcp", nil, tcpAddr)
+	if err != nil {
+		println("Dial failed:", err.Error())
+		os.Exit(1)
+	}
+	return conn
 }
 
 func TestApp(t *testing.T) {
-	app := Init()
+	Init()
 
-	data, err := json.Marshal(handlers.Body{
-		Key:  "key",
-		Data: "value",
-	})
+}
 
-	if err != nil {
-		t.Errorf("Error adding key value pair")
-		return
-	}
+func TestClient(t *testing.T) {
+	conn := Client()
+	println("Client connected", conn.RemoteAddr().String())
+	conn.Write([]byte("data"))
 
-	req := httptest.NewRequest("POST", "/write", bytes.NewReader(data))
-	resp, err := app.Test(req)
-
-	if err != nil {
-		t.Errorf("Error adding key value pair " + err.Error())
-		return
-	}
-
-	body, _ := io.ReadAll(resp.Body)
-	println(resp.StatusCode)
-	println(string(body))
-
-	if resp.StatusCode != fiber.StatusOK {
-		t.Errorf("Error adding key value pair")
-		return
-	}
-
-	queryReq := httptest.NewRequest("GET", "/query?key=key", nil)
-	res, err := app.Test(queryReq)
-
-	if err != nil {
-		t.Errorf("Error adding key value pair " + err.Error())
-		return
-	}
-
-	queryBody, _ := io.ReadAll(res.Body)
-	println(res.StatusCode)
-	println(string(queryBody))
-
-	if res.StatusCode != fiber.StatusOK {
-		t.Errorf("Error adding key value pair")
-		return
+	for {
+		var buf [512]byte
+		n, err := conn.Read(buf[0:])
+		if err != nil {
+			println("Read from server failed:", err.Error())
+			os.Exit(1)
+		}
+		println(string(buf[0:n]))
 	}
 }

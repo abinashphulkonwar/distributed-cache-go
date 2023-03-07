@@ -20,9 +20,6 @@ func main() {
 
 	api.ApiServer(db)
 
-	err = tcp.ApiServer(db)
+	go tcp.ApiServer(db)
 
-	if err != nil {
-		panic(err)
-	}
 }

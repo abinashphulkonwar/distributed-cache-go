@@ -1,0 +1,14 @@
+{
+  "name": "tcp-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "abianash phulkonwar",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.14.6"
+  }
+}
