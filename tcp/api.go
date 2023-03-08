@@ -10,9 +10,10 @@ import (
 	"github.com/abinashphulkonwar/dist-cache/service"
 	"github.com/abinashphulkonwar/dist-cache/storage"
 	"github.com/abinashphulkonwar/dist-cache/tcp/handlers"
+	"github.com/abinashphulkonwar/dist-cache/tcp/node"
 )
 
-func (c *Client) handleRequest() {
+func handleRequest(c *node.Client) {
 	reader := bufio.NewReader(c.Conn)
 	for {
 		message, err := reader.ReadString('\n')
@@ -26,21 +27,56 @@ func (c *Client) handleRequest() {
 
 		if err != nil {
 			fmt.Println(err)
+			handlers.ErrorHandler(&handlers.ErrorRes{
+				Message: err.Error(),
+				Status:  handlers.FAIL,
+			}, c)
 			continue
 		}
+		res := handlers.Response{}
 
 		if body.Type == "write" {
-			err = handlers.WriteDoc(&body, c.DB)
+
+			data, err := handlers.WriteDoc(&body, c.DB)
 			if err != nil {
 				fmt.Println(err)
+				handlers.ErrorHandler(&handlers.ErrorRes{
+					Message: err.Error(),
+					Status:  handlers.FAIL,
+				}, c)
 				continue
 			}
+
+			res.Message = "Data written successfully"
+
+			switch body.Data.Commend {
+			case handlers.SET:
+				res.Data = [2]string{data.Key, data.Value}
+			case handlers.GET:
+				res.Data = [2]string{data.Key, "1"}
+			case handlers.DELETE:
+				res.Data = [2]string{body.Data.Key, "0"}
+			}
+			res.Status = handlers.SUCCESS
+
+			jsonData, err := json.Marshal(res)
+			if err != nil {
+				fmt.Println(err)
+				handlers.ErrorHandler(&handlers.ErrorRes{
+					Message: err.Error(),
+					Status:  handlers.FAIL,
+				}, c)
+				continue
+			}
+			c.Conn.Write(jsonData)
+			continue
 		}
-
-		fmt.Printf("Message incoming: %s", string(message))
-		c.Conn.Write([]byte("Message received.\n"))
-
+		handlers.ErrorHandler(&handlers.ErrorRes{
+			Message: "Not found",
+			Status:  handlers.FAIL,
+		}, c)
 	}
+
 }
 
 func App(db *storage.BadgerStorage) error {
@@ -63,7 +99,7 @@ func App(db *storage.BadgerStorage) error {
 			conn.Close()
 		}
 
-		client := &Client{
+		client := &node.Client{
 			Conn: conn,
 			ID:   id,
 			DB:   db,
@@ -71,9 +107,11 @@ func App(db *storage.BadgerStorage) error {
 
 		println(client.ID)
 
+		node.SetConnectionToMap(client)
+
 		conn.Write([]byte(client.ID))
 
-		go client.handleRequest()
+		go handleRequest(client)
 		conn.Write([]byte("Message received.\n"))
 
 	}

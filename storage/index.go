@@ -55,3 +55,18 @@ func (engine *BadgerStorage) Get(key string) ([2]string, error) {
 	}
 	return [2]string{key, value}, nil
 }
+
+func (engine *BadgerStorage) Delete(key string) error {
+	txn := engine.db.NewTransaction(true)
+	defer txn.Discard()
+	err := txn.Delete([]byte(key))
+	if err != nil {
+		return err
+	}
+	err = txn.Commit()
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
