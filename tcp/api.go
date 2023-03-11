@@ -13,7 +13,7 @@ import (
 	"github.com/abinashphulkonwar/dist-cache/tcp/node"
 )
 
-func handleRequest(c *node.Client) {
+func handleRequest(c *node.Connection) {
 	reader := bufio.NewReader(c.Conn)
 	for {
 		message, err := reader.ReadString('\n')
@@ -81,9 +81,11 @@ func handleRequest(c *node.Client) {
 
 func App(db *storage.BadgerStorage) error {
 	tcp, err := net.Listen("tcp", ":3001")
+
 	if err != nil {
 		return errors.New("error")
 	}
+
 	defer tcp.Close()
 
 	for {
@@ -99,7 +101,7 @@ func App(db *storage.BadgerStorage) error {
 			conn.Close()
 		}
 
-		client := &node.Client{
+		client := &node.Connection{
 			Conn: conn,
 			ID:   id,
 			DB:   db,

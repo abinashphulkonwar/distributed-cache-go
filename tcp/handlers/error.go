@@ -6,7 +6,7 @@ import (
 	"github.com/abinashphulkonwar/dist-cache/tcp/node"
 )
 
-func ErrorHandler(data *ErrorRes, c *node.Client) {
+func ErrorHandler(data *ErrorRes, c *node.Connection) {
 
 	res := Response{
 		Message: data.Message,

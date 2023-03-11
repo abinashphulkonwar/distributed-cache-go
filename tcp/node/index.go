@@ -7,19 +7,19 @@ import (
 	"github.com/abinashphulkonwar/dist-cache/storage"
 )
 
-type Client struct {
+type Connection struct {
 	Conn net.Conn
 	ID   string
 	DB   *storage.BadgerStorage
 }
 
-var ConnectionMap = map[string]*Client{}
+var ConnectionMap = map[string]*Connection{}
 
-func SetConnectionToMap(c *Client) {
+func SetConnectionToMap(c *Connection) {
 	ConnectionMap[c.ID] = c
 }
 
-func GetConnectionFromMap(id string) (*Client, error) {
+func GetConnectionFromMap(id string) (*Connection, error) {
 	data, ok := ConnectionMap[id]
 
 	if !ok {
