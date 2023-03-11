@@ -22,17 +22,13 @@ func App(db *storage.BadgerStorage) *fiber.App {
 
 			// Retrieve the custom status code if it's a *fiber.Error
 			var e *fiber.Error
+
 			if errors.As(err, &e) {
 				code = e.Code
 			}
 
 			res := errorRes{
 				Status: code,
-			}
-
-			if e.Message != "" {
-				res.Message = e.Message
-				return ctx.Status(code).JSON(res)
 			}
 
 			if err != nil {
@@ -43,12 +39,13 @@ func App(db *storage.BadgerStorage) *fiber.App {
 				res.Message = message
 				return ctx.Status(code).JSON(res)
 			}
-			return nil
+			res.Message = e.Error()
+			return ctx.Status(code).JSON(res)
 		},
 	})
 
-	go routes.WriteRoute(app, db)
-	go routes.QueryRoute(app, db)
+	routes.WriteRoute(app, db)
+	routes.QueryRoute(app, db)
 
 	return app
 }

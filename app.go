@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+
 	connection, err := badger.Open(badger.DefaultOptions("db"))
 
 	if err != nil {
@@ -18,8 +19,9 @@ func main() {
 
 	db := storage.NewBadgerStorage(connection)
 
-	api.ApiServer(db)
-
-	go tcp.ApiServer(db)
+	go api.ApiServer(db)
+	println("api server started")
+	tcp.ApiServer(db)
+	println("tcp server started")
 
 }

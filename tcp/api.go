@@ -89,7 +89,9 @@ func App(db *storage.BadgerStorage) error {
 	defer tcp.Close()
 
 	for {
+
 		conn, err := tcp.Accept()
+
 		if err != nil {
 			println("Error accepting: ", err.Error())
 			conn.Close()
