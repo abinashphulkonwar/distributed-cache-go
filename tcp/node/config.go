@@ -11,15 +11,27 @@ type josnStructure struct {
 }
 
 func WriteConnectionConfig() {
+
+
+
+
 	var data []string
+
+
+
 
 	for _, v := range ConnectionMap {
 		data = append(data, v.ID)
 	}
 
+
+
+
 	if os.Getenv("mode") == "test" {
 		data = append(data, "node1", "node2")
 	}
+
+	
 
 	var jsonStructure = josnStructure{
 		Title:       "Connections",
